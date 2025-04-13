@@ -1,0 +1,6 @@
+transformers>=4.30.0
+torch>=2.0.0
+fastapi>=0.95.0
+peft>=0.4.0
+langchain>=0.0.200  # ✨ New addition
+sentence-transformers>=2.2.2  # ✨ For advanced validation
