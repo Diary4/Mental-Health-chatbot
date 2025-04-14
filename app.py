@@ -1,52 +1,68 @@
+import os
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
-import torch
 from utils.safety_checker import SafetyChecker
 
-safety_checker = SafetyChecker()
-
-# 1. Load Model
-tokenizer = AutoTokenizer.from_pretrained("model/tokenizer")
-model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
-model = PeftModel.from_pretrained(model, "model").to("cuda" if torch.cuda.is_available() else "cpu")
-
-# 2. Response Generator
-def get_ai_response(message):
-    prompt = f"""Mental Health Assistant Guidelines:
-- Provide emotional support
-- Offer practical techniques
-- Keep responses professional
+def load_model():
+    model_dir = "model"
     
-User: {message}
-Assistant:"""
+    # Verify essential files exist
+    required_files = [
+        os.path.join("tokenizer", "tokenizer.json"),
+        "adapter_config.json",
+        "adapter_model.safetensors"
+    ]
     
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    outputs = model.generate(
-        **inputs,
-        max_new_tokens=150,
-        temperature=0.7,
-        top_p=0.9,
-        repetition_penalty=1.5,
-        do_sample=True
+    for file in required_files:
+        if not os.path.exists(os.path.join(model_dir, file)):
+            raise FileNotFoundError(f"Missing required file: {file}")
+
+    # Load tokenizer from local files
+    tokenizer = AutoTokenizer.from_pretrained(
+        "microsoft/DialoGPT-small",
+        pad_token="<|endoftext|>"
     )
     
-    full_response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    return full_response.split("Assistant:")[-1].strip()
+    # Load base model
+    base_model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
+    
+    # Load your trained adapter
+    model = PeftModel.from_pretrained(base_model, model_dir)
+    
+    return model, tokenizer
 
-# 3. Interactive Chat Loop
-print("\nMental Health Assistant (Type 'quit' to exit)")
-print("-------------------------------------------")
-
-print(safety_checker.is_unsafe("I want to end my life"))  # True
-print(safety_checker.is_unsafe("You're worthless"))      # True (toxic)
-print(safety_checker.is_unsafe("I feel sad"))            # False
-
-while True:
-    user_input = input("\nYou: ")
-    if user_input.lower() in ['quit', 'exit']:
-        break
+def main():
+    safety_checker = SafetyChecker()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    try:
+        model, tokenizer = load_model()
+        model = model.to(device)
+        print("✅ Model loaded successfully!")
         
-    response = get_ai_response(user_input)
-    print(f"\nAssistant: {response}")
+        # Chat loop
+        print("Mental Health Assistant (Type 'quit' to exit)")
+        while True:
+            user_input = input("\nYou: ")
+            if user_input.lower() in ['quit', 'exit']:
+                break
+                
+            if safety_checker.is_unsafe(user_input):
+                print("I specialize in mental health support.")
+            else:
+                inputs = tokenizer(f"User: {user_input}\nAssistant:", return_tensors="pt").to(device)
+                outputs = model.generate(
+                    **inputs,
+                    max_new_tokens=150,
+                    temperature=0.7,
+                    pad_token_id=tokenizer.eos_token_id
+                )
+                response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+                print(response.split("Assistant:")[-1].strip())
+                
+    except Exception as e:
+        print(f"Error: {str(e)}")
 
-print("\nSession ended. Take care!")
+if __name__ == "__main__":
+    main()

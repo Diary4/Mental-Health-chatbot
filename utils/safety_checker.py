@@ -29,28 +29,25 @@ class SafetyChecker:
             self.fallback_mode = False
 
     def is_unsafe(self, text: str) -> bool:
-        """Check for crisis language or toxic content"""
         text_lower = text.lower()
         
-        # 1. Check for crisis phrases
-        if any(phrase in text_lower for phrase in self.crisis_phrases):
+        # 1. Immediate crisis phrases (highest priority)
+        crisis_phrases = {
+            "kill myself", "end my life", "want to die",
+            "suicide", "no reason to live", "end it all"
+        }
+        if any(phrase in text_lower for phrase in crisis_phrases):
             return True
             
-        # 2. Check toxicity (if models loaded)
+        # 2. Toxic content detection
         if not self.fallback_mode:
             try:
-                # Toxicity check
                 tox_result = self.toxicity_checker(text)[0]
-                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.85:
-                    return True
-                    
-                # Severe negative emotion check
-                emotion_result = self.emotion_detector(text)[0]
-                if emotion_result['label'] in ['grief', 'remorse'] and emotion_result['score'] > 0.7:
+                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.7:
                     return True
             except:
                 self.fallback_mode = True
-                
+        
         return False
 
     def get_crisis_resources(self) -> Dict[str, str]:
