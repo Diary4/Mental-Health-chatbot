@@ -214,6 +214,29 @@ class MentalHealthRetrievalService:
         except Exception as e:
             logger.error(f"Failed to clear index: {e}")
             return False
+        
+
+    def get_emotional_context(self, query: str, k: int = 2) -> str:
+        """Retrieve emotionally relevant context"""
+        docs = self.retrieve(query, k=k, score_threshold=0.65)
+        if not docs:
+            return ""
+    
+        # Prioritize emotional support content
+        emotional_keywords = ["feel", "cope", "support", "manage", "help"]
+        emotional_docs = [
+            doc for doc in docs 
+            if any(kw in doc.page_content.lower() for kw in emotional_keywords)
+        ]
+        return "\n".join(doc.page_content for doc in emotional_docs[:k])
+
+    def is_mental_health_query(self, text: str) -> bool:
+        """Classify if query requires mental health response"""
+        mental_health_keywords = [
+            "feel", "anxious", "depress", "stress", 
+            "worthless", "therapy", "counsel"
+        ]
+        return any(kw in text.lower() for kw in mental_health_keywords)
 
 
 # Example usage

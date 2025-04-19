@@ -1,46 +1,17 @@
-# app.py - 
-import os
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel
-from utils.safety_checker import SafetyChecker
 from services.chat_service import ChatService
-from utils.index_builder import build_mental_health_index
-from services.chat_service import ChatService
-
-
 
 def main():
-
-    data_dir = "data/mental_health_resources"
-    if not os.path.exists("vector_store"):
-        print("Building knowledge index...")
-        build_mental_health_index(data_dir)
-    
-    print("Initializing chat service...")
+    print("Initializing Mental Health Assistant...")
     chat_service = ChatService()
     
-    # Chat loop
-    print("Mental Health Assistant (Type 'quit' to exit)")
-    conversation_history = []
-    
+    print("System Ready. Type 'quit' to exit.\n")
     while True:
-        user_input = input("\nYou: ")
+        user_input = input("You: ").strip()
         if user_input.lower() in ['quit', 'exit']:
             break
             
-        
         response = chat_service.generate_response(user_input)
         print(f"Assistant: {response}")
-        
-        
-        conversation_history.append({"user": user_input, "assistant": response})
-        # Keep only the last 5 turns to avoid context getting too long
-        if len(conversation_history) > 5:
-            conversation_history = conversation_history[-5:]
-
-chat = ChatService()
-print(chat.generate_response("I've been feeling depressed"))
 
 if __name__ == "__main__":
     main()
