@@ -1,60 +1,127 @@
 import torch
 from transformers import pipeline
-from typing import Dict, Optional
+from typing import Dict, Optional, List
+import re
 
 class SafetyChecker:
     def __init__(self):
         self.device = 0 if torch.cuda.is_available() else -1
-        self.crisis_phrases = [
-            "kill myself", "want to die", "end it all",
-            "suicide", "self harm", "hurt myself"
+        self.fallback_mode = False
+        
+        # Enhanced crisis phrases with pattern matching
+        self.crisis_patterns = [
+            re.compile(r"\b(kill|end|harm)\b.*\b(my|me|self)\b", re.IGNORECASE),
+            re.compile(r"\b(suicide|overdose|jump(ing|ed)?)\b", re.IGNORECASE),
+            re.compile(r"\b(no reason to live|want to die)\b", re.IGNORECASE)
         ]
         
-        # Load pre-trained safety models
+        # Initialize models with better error handling
+        self._load_models()
+
+    def _load_models(self):
+        """Safely load NLP models with fallback options"""
         try:
             self.toxicity_checker = pipeline(
                 "text-classification",
                 model="unitary/toxic-bert",
-                device=self.device
+                device=self.device,
+                max_length=512,
+                truncation=True
             )
+            
             self.emotion_detector = pipeline(
                 "text-classification",
                 model="SamLowe/roberta-base-go_emotions",
-                device=self.device
+                device=self.device,
+                top_k=3  # Get top 3 emotions for better context
             )
         except Exception as e:
-            print(f"Safety models failed to load: {e}")
+            print(f"⚠️ Safety models loading failed: {str(e)}")
             self.fallback_mode = True
-        else:
-            self.fallback_mode = False
 
     def is_unsafe(self, text: str) -> bool:
+        """
+        Enhanced safety check with multiple verification layers
+        Returns True if the text indicates crisis or harmful intent
+        """
+        if not text.strip():
+            return False
+            
         text_lower = text.lower()
         
-        # 1. Immediate crisis phrases (highest priority)
-        crisis_phrases = {
-            "kill myself", "end my life", "want to die",
-            "suicide", "no reason to live", "end it all"
-        }
-        if any(phrase in text_lower for phrase in crisis_phrases):
+        # Layer 1: Fast pattern matching for immediate crisis
+        if self._detect_crisis_patterns(text):
             return True
             
-        # 2. Toxic content detection
+        # Layer 2: Toxic content detection (if models loaded)
         if not self.fallback_mode:
             try:
-                tox_result = self.toxicity_checker(text)[0]
-                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.7:
+                # Check for toxic content
+                tox_result = self.toxicity_checker(text[:1000])[0]  # Truncate to avoid OOM
+                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.85:  # Higher threshold
                     return True
-            except:
+                    
+                # Check for extreme negative emotions
+                emotions = self.emotion_detector(text[:1000])
+                for emotion in emotions[0]:
+                    if emotion['label'] in ['grief', 'despair'] and emotion['score'] > 0.9:
+                        return True
+            except Exception as e:
+                print(f"⚠️ Safety check error: {str(e)}")
                 self.fallback_mode = True
-        
+                
         return False
 
-    def get_crisis_resources(self) -> Dict[str, str]:
-        """Return emergency contacts based on location"""
-        return {
-            "US": "988 Suicide & Crisis Lifeline",
-            "UK": "116 123 (Samaritans)",
-            "IN": "91-9820466726 (Aasra)",
-            "Global": "https://findahelpline.com"
+    def _detect_crisis_patterns(self, text: str) -> bool:
+        """Advanced pattern matching for crisis phrases"""
+        for pattern in self.crisis_patterns:
+            if pattern.search(text):
+                return True
+                
+        # Additional checks for self-harm references
+        self_harm_phrases = [
+            "cut myself", "self harm", "bleed out",
+            "hang myself", "overdose", "jump off"
+        ]
+        return any(phrase in text.lower() for phrase in self_harm_phrases)
+
+    def get_crisis_resources(self, country_code: Optional[str] = None) -> Dict[str, str]:
+        """Return localized crisis resources with global fallback"""
+        resources = {
+            "US": {"text": "Text HOME to 741741", "call": "988"},
+            "UK": {"text": "Text SHOUT to 85258", "call": "116 123"},
+            "CA": {"text": "Text 686868", "call": "1-833-456-4566"},
+            "IN": {"call": "91-9820466726 (Aasra)"},
+            "global": {
+                "website": "https://findahelpline.com",
+                "text": "WHO Mental Health Resources: https://www.who.int/mental_health"
+            }
         }
+        
+        if country_code and country_code.upper() in resources:
+            return resources[country_code.upper()]
+        return resources["global"]
+
+    def get_response_level(self, text: str) -> int:
+        """
+        Threat level classification:
+        0 = Safe
+        1 = Concerning (needs gentle probing)
+        2 = Crisis (immediate intervention)
+        """
+        if self._detect_crisis_patterns(text):
+            return 2
+            
+        if not self.fallback_mode:
+            try:
+                emotions = self.emotion_detector(text[:1000])[0]
+                negative_scores = sum(
+                    e['score'] for e in emotions 
+                    if e['label'] in ['grief', 'despair', 'fear']
+                )
+                if negative_scores > 1.5:  # Combined threshold
+                    return 1
+            except:
+                pass
+                
+        return 0
