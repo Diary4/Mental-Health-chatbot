@@ -1,3 +1,4 @@
+# utils/response_enhancer.py
 import random
 
 def enhance_response(response):
