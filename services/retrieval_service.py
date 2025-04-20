@@ -13,18 +13,15 @@ class MentalHealthRetrievalService:
         self.vector_store_path = vector_store_path
         os.makedirs(vector_store_path, exist_ok=True)
         
-        # Initialize with all-MiniLM-L6-v2 embeddings
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2",
             model_kwargs={"device": "cuda" if torch.cuda.is_available() else "cpu"}
         )
         
-        # Load or create vector store
         self.vector_store = self._init_vector_store()
 
     def _init_vector_store(self):
         """Initialize FAISS vector store"""
-        # Check if vector store exists
         if os.path.exists(f"{self.vector_store_path}/index.faiss"):
             print("Loading existing vector store...")
             return FAISS.load_local(
@@ -33,23 +30,21 @@ class MentalHealthRetrievalService:
                 allow_dangerous_deserialization=True
             )
         
-        # If not, create new vector store from local data
         print("Creating new vector store from local data...")
         return self._create_vector_store_from_local_data()
 
     def _create_vector_store_from_local_data(self):
         """Create vector store from local JSON data"""
         try:
-            # Try to load from local JSON file
-            json_path = "data/mental_health_resources/mental_health_dataset.json"
+            json_path = "data/mental_health_resources/mental_health_dataset_improved.jsonl"
             if os.path.exists(json_path):
                 with open(json_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 
-                # Convert to documents
+                
                 docs = []
                 for item in data:
-                    # Make sure each item has the required fields
+                    
                     if "user_input" in item and "therapist_response" in item:
                         docs.append(Document(
                             page_content=f"Client: {item['user_input']}\nTherapist: {item['therapist_response']}",
@@ -60,20 +55,20 @@ class MentalHealthRetrievalService:
                         ))
                 
                 if not docs:
-                    # Fallback to sample data if no valid documents
+                    
                     docs = self._get_sample_documents()
             else:
-                # Fallback to sample data if file doesn't exist
+                
                 docs = self._get_sample_documents()
             
-            # Create and save vector store
+            
             vector_store = FAISS.from_documents(docs, self.embeddings)
             vector_store.save_local(self.vector_store_path)
             return vector_store
             
         except Exception as e:
             print(f"Error creating vector store from local data: {e}")
-            # Fallback to sample data
+           
             docs = self._get_sample_documents()
             vector_store = FAISS.from_documents(docs, self.embeddings)
             vector_store.save_local(self.vector_store_path)
@@ -109,10 +104,10 @@ class MentalHealthRetrievalService:
         try:
             dataset = load_dataset(
                 "Amod/mental_health_counseling_conversations",
-                split="train[:1000]"  # Adjust based on your RAM
+                split="train[:1000]"  
             )
             
-            # Convert to documents
+           
             docs = []
             for item in dataset:
                 docs.append(Document(
@@ -123,7 +118,7 @@ class MentalHealthRetrievalService:
                     }
                 ))
             
-            # Add to vector store
+            
             self.vector_store.add_documents(docs)
             self.vector_store.save_local(self.vector_store_path)
             print(f"Added {len(docs)} documents from HuggingFace dataset")
@@ -143,5 +138,5 @@ class MentalHealthRetrievalService:
             return [doc.page_content for doc in docs]
         except Exception as e:
             print(f"Retrieval error: {e}")
-            # Return sample responses as fallback
+            
             return [self._get_sample_documents()[0].page_content]
