@@ -2,6 +2,7 @@
 import os
 import random
 from typing import Optional, List, Dict, Tuple
+from services.document_retrieval import DocumentRetrievalService
 
 class ChatService:
     def __init__(self):
@@ -9,6 +10,8 @@ class ChatService:
         self.responses = self._load_responses()
         self.advice = self._load_advice()
         self.conversation_history = []
+        self.retriever = DocumentRetrievalService("data/mental_health_resources/mental_health_dataset_improved.jsonl")
+
         print("Chat service initialized successfully")
         
     def _load_responses(self) -> Dict[str, List[str]]:
@@ -515,7 +518,10 @@ class ChatService:
         else:
             response = random.choice(self.responses["default"])
             
-        
+        fallback_response = self.retriever.search(user_input)
+        if fallback_response:
+            self.conversation_history.append({"role": "assistant", "content": fallback_response})
+            return fallback_response
         connectors = [
             "I understand that's difficult. ",
             "Thank you for sharing that with me. ",
