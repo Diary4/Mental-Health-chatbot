@@ -1,0 +1,14 @@
+[
+  {
+    "user": "how can i fix my sleep schedule",
+    "bot": "Sleep problems can significantly impact mental health. What aspects of sleep are challenging for you right now?"
+  },
+  {
+    "user": "i can't wake up early in the morning what should i do",
+    "bot": "I understand this is difficult. What specific part is most challenging for you?"
+  },
+  {
+    "user": "what are the ways to manage stress",
+    "bot": "Stress can affect our sleep, which then increases stress further. How has your sleep been lately?"
+  }
+]
