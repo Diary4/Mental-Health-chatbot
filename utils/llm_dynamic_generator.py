@@ -1,23 +1,26 @@
 import os
-import requests
+from dotenv import load_dotenv
+from google import generativeai as genai
 
-API_KEY = os.getenv("GEMINI_API_KEY") 
-MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/text-bison-001:generateText"
+load_dotenv()
+
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Correct model usage
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 def generate_dynamic_llm(prompt: str) -> str:
-    print(f"[LLM Called with prompt]: {prompt}")  # Add this line for debugging
     try:
-        response = requests.post(
-            MODEL_URL,
-            headers={"Authorization": f"Bearer {API_KEY}"},
-            json={
-                "prompt": {"text": prompt},
-                "temperature": 0.7,
-                "candidateCount": 1,
-            }
-        )
-        response.raise_for_status()
-        return response.json()["candidates"][0]["output"]
+        response = model.generate_content(prompt)
+        
+        # Check if response has expected text
+        if hasattr(response, "text"):
+            return response.text.strip()
+        elif hasattr(response, "candidates") and response.candidates:
+            return response.candidates[0].content.parts[0].text
+        else:
+            return "I'm here for you. Could you tell me more about how you're feeling?"
+
     except Exception as e:
-        print(f"[LLM Error]: {e}")
-        return "I'm here for you. Can you share more about what you're feeling?"
+        print(f"[Gemini Error] {e}")
+        return "I'm here to support you. Could you share more about what's on your mind?"

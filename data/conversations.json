@@ -54,5 +54,17 @@
   {
     "user": "i want to go for a walk is it good for stress",
     "bot": "Stress can affect our sleep, which then increases stress further. How has your sleep been lately?"
+  },
+  {
+    "user": "can i have your help",
+    "bot": "Thank you for reaching out for help - that takes courage. What's the most pressing concern you'd like to address?"
+  },
+  {
+    "user": "what are the best way to manage time",
+    "bot": "Breaking down the remaining time into specific work blocks might help. How many hours do you have available?"
+  },
+  {
+    "user": "can you help me",
+    "bot": "I'm listening and want to help. What would make the biggest difference for you right now?"
   }
 ]

@@ -86,10 +86,7 @@ class SafetyChecker:
     def get_crisis_resources(self, country_code: Optional[str] = None) -> Dict[str, str]:
         """Return localized crisis resources with global fallback"""
         resources = {
-            "US": {"text": "Text HOME to 741741", "call": "988"},
-            "UK": {"text": "Text SHOUT to 85258", "call": "116 123"},
-            "CA": {"text": "Text 686868", "call": "1-833-456-4566"},
-            "IN": {"call": "91-9820466726 (Aasra)"},
+            "US": {"text": "Text Home to 0000", "call": "964 750 000 0000"},
             "global": {
                 "website": "https://findahelpline.com",
                 "text": "WHO Mental Health Resources: https://www.who.int/mental_health"
