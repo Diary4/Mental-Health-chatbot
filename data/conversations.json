@@ -10,5 +10,29 @@
   {
     "user": "what are the ways to manage stress",
     "bot": "Stress can affect our sleep, which then increases stress further. How has your sleep been lately?"
+  },
+  {
+    "user": "Hello i feel depressed today what should i do",
+    "bot": "That's an interesting question. In mental health contexts, we often find that..."
+  },
+  {
+    "user": "can i go for walk to reduce stress ?",
+    "bot": "Sometimes stress comes from trying to do everything perfectly. Could you identify what's 'good enough' for now?"
+  },
+  {
+    "user": "what can i do to reduce stress ?",
+    "bot": "Mindfulness practices can help center you when stress feels overwhelming. Would you like to try a quick grounding exercise?"
+  },
+  {
+    "user": "i want to kill myself",
+    "bot": "I specialize in mental health topics. Could you tell me more about what's on your mind?"
+  },
+  {
+    "user": "i feel stressed today what should i do",
+    "bot": "Sometimes stress comes from trying to do everything perfectly. Could you identify what's 'good enough' for now?"
+  },
+  {
+    "user": "i want to take a walk to reduce stress",
+    "bot": "Sometimes stress comes from trying to do everything perfectly. Could you identify what's 'good enough' for now?"
   }
 ]

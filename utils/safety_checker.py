@@ -8,14 +8,12 @@ class SafetyChecker:
         self.device = 0 if torch.cuda.is_available() else -1
         self.fallback_mode = False
         
-        # Enhanced crisis phrases with pattern matching
         self.crisis_patterns = [
             re.compile(r"\b(kill|end|harm)\b.*\b(my|me|self)\b", re.IGNORECASE),
             re.compile(r"\b(suicide|overdose|jump(ing|ed)?)\b", re.IGNORECASE),
             re.compile(r"\b(no reason to live|want to die)\b", re.IGNORECASE)
         ]
         
-        # Initialize models with better error handling
         self._load_models()
 
     def _load_models(self):
@@ -33,7 +31,7 @@ class SafetyChecker:
                 "text-classification",
                 model="SamLowe/roberta-base-go_emotions",
                 device=self.device,
-                top_k=3  # Get top 3 emotions for better context
+                top_k=3  
             )
         except Exception as e:
             print(f"⚠️ Safety models loading failed: {str(e)}")
