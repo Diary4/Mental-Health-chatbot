@@ -34,5 +34,17 @@
   {
     "user": "i want to take a walk to reduce stress",
     "bot": "Sometimes stress comes from trying to do everything perfectly. Could you identify what's 'good enough' for now?"
+  },
+  {
+    "user": "is walking good for reducing stress ?",
+    "bot": "Stress often builds up when we feel overwhelmed. Would it help to prioritize what needs to be done first?"
+  },
+  {
+    "user": "i want to go for a walk",
+    "bot": "I specialize in mental health topics. Could you tell me more about what's on your mind?"
+  },
+  {
+    "user": "can i go for a walk ?",
+    "bot": "I specialize in mental health topics. Could you tell me more about what's on your mind?"
   }
 ]

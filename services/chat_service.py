@@ -49,7 +49,10 @@ class ChatService:
 
         # Persistent memory file for learning
         self.memory_file = "data/conversations.json"
-        self.memory = []
+        self.memory = {
+            "last_topic": None,
+            "last_user_input": None
+        }
         self._load_memory()
 
     def _load_memory(self):
@@ -79,14 +82,17 @@ class ChatService:
         return None
 
     def _generate_dynamic(self, user_input: str) -> str:
-        # Encode input with EOS token and optional conversation history
+        
         input_ids = self.tokenizer.encode(user_input + self.tokenizer.eos_token, return_tensors="pt")
+        attention_mask = torch.ones_like(input_ids)
+
         if torch.cuda.is_available():
             input_ids = input_ids.to('cuda')
+            attention_mask = attention_mask.to('cuda')
 
-        # Generate a response
         output_ids = self.model.generate(
             input_ids,
+            attention_mask=attention_mask,
             max_length=input_ids.shape[-1] + 50,
             pad_token_id=self.tokenizer.eos_token_id,
             do_sample=True,
@@ -101,17 +107,17 @@ class ChatService:
         return response.strip()
 
     def generate_response(self, user_input: str) -> str:
-        # Record user input in session history
-        self.conversation_history.append({"role": "user", "content": user_input})
+        # 0. Clean input and record in history
         user_input_clean = user_input.strip()
+        self.conversation_history.append({"role": "user", "content": user_input_clean})
 
-        # 1. Persistent memory lookup
+        # 1. Check memory
         memory_resp = self._check_memory(user_input_clean)
         if memory_resp:
             self.conversation_history.append({"role": "assistant", "content": memory_resp})
             return memory_resp
 
-        # 2. Static responses
+        # 2. Static direct replies
         lower = user_input_clean.lower()
         for topic, replies in self.responses.items():
             if topic in lower:
@@ -120,7 +126,7 @@ class ChatService:
                 self.conversation_history.append({"role": "assistant", "content": response})
                 return response
 
-        # 3. Static advice
+        # 3. Static advice handling
         for topic, advice_section in self.advice.items():
             if topic in lower:
                 response = random.choice(list(advice_section.values()))
@@ -128,31 +134,42 @@ class ChatService:
                 self.conversation_history.append({"role": "assistant", "content": response})
                 return response
 
-        # 4. Dynamic generation for mental health topics
-        if is_mental_health_topic(user_input_clean):
-            # Try retrieval
-            fallback = self.retriever.search(user_input_clean)
+        # 4. Build contextual input from last user input
+        last_user_input = ""
+        for item in reversed(self.conversation_history):
+            if item["role"] == "user" and item["content"] != user_input_clean:
+                last_user_input = item["content"]
+                break
+        combined_input = f"{last_user_input} {user_input_clean}".strip()
+
+        # 5. Check if it's a mental health topic
+        if is_mental_health_topic(combined_input):
+            self.memory["last_topic"] = "mental health"
+            self.memory["last_user_input"] = user_input_clean
+
+            # First try static document retrieval
+            fallback = self.retriever.search(combined_input)
             if fallback:
                 self._save_to_memory(user_input_clean, fallback)
                 self.conversation_history.append({"role": "assistant", "content": fallback})
                 return fallback
 
-            # Generate dynamically
-            dyn_resp = self._generate_dynamic(user_input_clean)
-            # Validate and sanitize
+            # Generate dynamically if no static response found
+            dyn_resp = self._generate_dynamic(combined_input)
             validated = self.validator.validate_response(user_input_clean, dyn_resp)
             final = validated if validated else dyn_resp
             self._save_to_memory(user_input_clean, final)
             self.conversation_history.append({"role": "assistant", "content": final})
             return final
 
-        # 5. Off-topic fallback
+        # 6. Off-topic fallback
         off_msg = (
             "I'm here to help with mental health-related topics. "
             "Could we talk about how you're feeling today?"
         )
         self.conversation_history.append({"role": "assistant", "content": off_msg})
         return off_msg
+
 
     def validate_response(self, user_input: str, bot_response: str) -> str:
         # Final pass through custom validator
