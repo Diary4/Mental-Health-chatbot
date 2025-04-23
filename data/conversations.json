@@ -46,5 +46,13 @@
   {
     "user": "can i go for a walk ?",
     "bot": "I specialize in mental health topics. Could you tell me more about what's on your mind?"
+  },
+  {
+    "user": "can you help me ?",
+    "bot": "Sometimes it helps to prioritize our concerns. What's the most immediate issue you'd like help with?"
+  },
+  {
+    "user": "i want to go for a walk is it good for stress",
+    "bot": "Stress can affect our sleep, which then increases stress further. How has your sleep been lately?"
   }
 ]
