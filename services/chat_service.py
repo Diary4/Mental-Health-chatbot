@@ -48,110 +48,68 @@ class ChatService:
         if torch.cuda.is_available():
             self.model.to('cuda')
 
-        # Conversation history (session-level)
+        # Conversation history (session-level only)
         self.conversation_history = []
 
-        # Persistent memory file for learning
-        self.memory_file = "data/conversations.json"
-        self.memory = {
-            "last_topic": None,
-            "last_user_input": None
-        }
-        self._load_memory()
-
-    def _load_memory(self):
-        if os.path.exists(self.memory_file):
-            with open(self.memory_file, 'r', encoding='utf-8') as f:
-                try:
-                    self.memory = json.load(f)
-                except json.JSONDecodeError:
-                    self.memory = []
-        else:
-            # Initialize empty memory
-            with open(self.memory_file, 'w', encoding='utf-8') as f:
-                json.dump([], f)
-            self.memory = []
-
-    def _save_to_memory(self, user_input: str, response: str):
-        entry = {"user": user_input.strip(), "bot": response}
-        self.memory.append(entry)
-        with open(self.memory_file, 'w', encoding='utf-8') as f:
-            json.dump(self.memory, f, indent=2)
-
-    def _check_memory(self, user_input: str) -> str:
-        lookup = user_input.strip().lower()
-        for entry in self.memory:
-            if entry["user"].lower() == lookup:
-                return entry["bot"]
-        return None
-
-    def _generate_dynamic(self, user_input: str) -> str:
-        return generate_dynamic_llm(user_input)
-
     def generate_response(self, user_input: str) -> str:
-        # 0. Clean input and record in history
-        user_input_clean = user_input.strip()
-        self.conversation_history.append({"role": "user", "content": user_input_clean})
+        try:
+            # 0. Clean input and record in history
+            user_input_clean = user_input.strip()
+            self.conversation_history.append({"role": "user", "content": user_input_clean})
 
-        # 1. Check memory
-        memory_resp = self._check_memory(user_input_clean)
-        if memory_resp:
-            self.conversation_history.append({"role": "assistant", "content": memory_resp})
-            return memory_resp
+            # 1. Check if it's a mental health topic first
+            if not is_mental_health_topic(user_input_clean):
+                # For non-mental health topics, provide a clear redirection
+                redirection_response = (
+                    "I'm here to support you with mental health and emotional well-being. "
+                    "I don't provide general knowledge or answer non-mental health related questions. "
+                    "Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+                )
+                self.conversation_history.append({"role": "assistant", "content": redirection_response})
+                return redirection_response
 
-        # 2. Static direct replies
-        lower = user_input_clean.lower()
-        for topic, replies in self.responses.items():
-            if topic in lower:
-                response = random.choice(replies)
-                self._save_to_memory(user_input_clean, response)
-                self.conversation_history.append({"role": "assistant", "content": response})
-                return response
+            # 2. Static direct replies
+            lower = user_input_clean.lower()
+            for topic, replies in self.responses.items():
+                if topic in lower:
+                    response = random.choice(replies)
+                    self.conversation_history.append({"role": "assistant", "content": response})
+                    return response
 
-        # 3. Static advice handling
-        for topic, advice_section in self.advice.items():
-            if topic in lower:
-                response = random.choice(list(advice_section.values()))
-                self._save_to_memory(user_input_clean, response)
-                self.conversation_history.append({"role": "assistant", "content": response})
-                return response
+            # 3. Static advice handling
+            for topic, advice_section in self.advice.items():
+                if topic in lower:
+                    response = random.choice(list(advice_section.values()))
+                    self.conversation_history.append({"role": "assistant", "content": response})
+                    return response
 
-        # 4. Build contextual input from last user input
-        last_user_input = ""
-        for item in reversed(self.conversation_history):
-            if item["role"] == "user" and item["content"] != user_input_clean:
-                last_user_input = item["content"]
-                break
-        combined_input = f"{last_user_input} {user_input_clean}".strip()
+            # 4. Build contextual input from last user input
+            last_user_input = ""
+            for item in reversed(self.conversation_history):
+                if item["role"] == "user" and item["content"] != user_input_clean:
+                    last_user_input = item["content"]
+                    break
+            combined_input = f"{last_user_input} {user_input_clean}".strip()
 
-        # 5. Check if it's a mental health topic
-        if is_mental_health_topic(combined_input):
-            self.memory["last_topic"] = "mental health"
-            self.memory["last_user_input"] = user_input_clean
-
-            # First try static document retrieval
+            # 5. First try static document retrieval
             fallback = self.retriever.search(combined_input)
             if fallback:
-                self._save_to_memory(user_input_clean, fallback)
                 self.conversation_history.append({"role": "assistant", "content": fallback})
                 return fallback
 
-            # Generate dynamically if no static response found
+            # 6. Generate dynamically using Gemini
             dyn_resp = self._generate_dynamic(combined_input)
             validated = self.validator.validate_response(user_input_clean, dyn_resp)
             final = validated if validated else dyn_resp
-            self._save_to_memory(user_input_clean, final)
             self.conversation_history.append({"role": "assistant", "content": final})
             return final
 
-        # 6. Off-topic fallback
-        off_msg = (
-            "I'm here to help with mental health-related topics. "
-            "Could we talk about how you're feeling today?"
-        )
-        self.conversation_history.append({"role": "assistant", "content": off_msg})
-        return off_msg
+        except Exception as e:
+            print(f"Error in generate_response: {e}")
+            return "I'm here to support you. Could you tell me more about how you're feeling?"
 
+    def _generate_dynamic(self, user_input: str) -> str:
+        return generate_dynamic_llm(user_input)
 
     def validate_response(self, user_input: str, bot_response: str) -> str:
         # Final pass through custom validator
