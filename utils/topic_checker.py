@@ -23,7 +23,16 @@ MENTAL_HEALTH_KEYWORDS = [
     
     # Life situations
     "relationship", "family", "friend", "work", "job", "school", "study", "pressure", "stress",
-    "trauma", "grief", "loss", "change", "transition", "adjust", "adapt", "crisis", "emergency"
+    "trauma", "grief", "loss", "change", "transition", "adjust", "adapt", "crisis", "emergency",
+    
+    # Relationship and connection
+    "love", "loved", "loving", "need", "needed", "want", "wanted", "desire", "desired", "miss",
+    "missing", "care", "cared", "caring", "someone", "somebody", "person", "people", "partner",
+    "friend", "friendship", "family", "parent", "child", "sibling", "brother", "sister", "mother",
+    "father", "spouse", "wife", "husband", "boyfriend", "girlfriend", "crush", "dating", "breakup",
+    "broken", "heart", "heartbroken", "rejection", "rejected", "abandon", "abandoned", "alone",
+    "lonely", "isolation", "isolated", "connection", "connect", "connected", "belong", "belonging",
+    "accept", "accepted", "reject", "rejected", "understand", "understood", "listen", "heard"
 ]
 
 def contains_mental_health_keywords(text):
@@ -44,7 +53,16 @@ def contains_mental_health_keywords(text):
         r"i have been feeling .*",
         r"i've been feeling .*",
         r"i have been .*",
-        r"i've been .*"
+        r"i've been .*",
+        # Relationship patterns
+        r"i (need|want|love|miss|care about) .*",
+        r"i'm (in love|heartbroken|lonely|alone) .*",
+        r"no one (understands|listens|cares) .*",
+        r"someone (doesn't|does not) (love|care|understand) .*",
+        r"i feel (alone|lonely|rejected|abandoned) .*",
+        r"i (can't|cannot) (find|get) (someone|anyone) .*",
+        r"i (wish|want) (someone|somebody) .*",
+        r"i (don't|do not) have (anyone|someone) .*"
     ]
     
     return any(re.search(pattern, text_lower) for pattern in emotional_patterns)
@@ -57,6 +75,7 @@ def is_mental_health_topic(text):
     # If no direct matches, use the classifier
     candidate_labels = [
         "mental health and emotional well-being",
+        "relationships and emotional connections",
         "general knowledge and facts",
         "technical and mechanical topics",
         "geography and locations",
@@ -73,13 +92,14 @@ def is_mental_health_topic(text):
             top_label = result['labels'][0]
             top_score = result['scores'][0]
             
-            # Be more lenient with the confidence threshold for emotional expressions
-            return (top_label == "mental health and emotional well-being" and 
-                   (top_score > 0.5 or "feel" in text.lower() or "feeling" in text.lower()))
+            # Consider both mental health and relationship topics
+            return ((top_label in ["mental health and emotional well-being", "relationships and emotional connections"] and 
+                    top_score > 0.5) or
+                   any(word in text.lower() for word in ["feel", "feeling", "love", "need", "want", "miss", "care"]))
         else:
-            # If classifier fails, check for basic emotional expressions
-            return "feel" in text.lower() or "feeling" in text.lower()
+            # If classifier fails, check for basic emotional and relationship expressions
+            return any(word in text.lower() for word in ["feel", "feeling", "love", "need", "want", "miss", "care"])
     except Exception as e:
         print(f"Topic classification error: {e}")
-        # If classifier fails, check for basic emotional expressions
-        return "feel" in text.lower() or "feeling" in text.lower()
+        # If classifier fails, check for basic emotional and relationship expressions
+        return any(word in text.lower() for word in ["feel", "feeling", "love", "need", "want", "miss", "care"])
