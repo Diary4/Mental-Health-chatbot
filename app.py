@@ -1,10 +1,31 @@
 # app.py
+from flask import Flask, request, jsonify
 import os
 import warnings
 from services.chat_service import ChatService
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
+
+app = Flask(__name__)
+chat_service = ChatService()
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'error': 'Message is required'}), 400
+            
+        user_input = data['message']
+        response = chat_service.generate_response(user_input)
+        
+        return jsonify({
+            'response': response
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def main():
     """Main function to run the mental health assistant"""
@@ -46,4 +67,5 @@ def main():
         print("Please check your installation and try again.")
 
 if __name__ == "__main__":
-    main()
+    # Run the Flask app in debug mode
+    app.run(debug=True, port=8000, host='0.0.0.0')
