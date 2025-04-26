@@ -6,12 +6,10 @@ load_dotenv()
 
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-# Correct model usage
 model = genai.GenerativeModel("gemini-2.0-flash")
 
 def generate_dynamic_llm(prompt: str) -> str:
     try:
-        # Add context about being a mental health assistant
         system_prompt = """You are a compassionate mental health assistant. Your role is to:
         1. Listen actively and empathetically
         2. Provide supportive responses

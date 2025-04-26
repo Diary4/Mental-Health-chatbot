@@ -7,7 +7,6 @@ from typing import Optional
 from utils.document_processor import MentalHealthDocumentProcessor
 from services.retrieval_service import MentalHealthRetrievalService as RetrievalService
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -24,11 +23,9 @@ def build_mental_health_index(data_dir: str = "data/mental_health_resources") ->
     try:
         logger.info(f"Building index from {data_dir}...")
         
-        # Initialize components
         processor = MentalHealthDocumentProcessor()
         retrieval_service = RetrievalService()
         
-        # Load and process documents
         documents = processor.process_directory(data_dir)
         if not documents:
             logger.error("No documents found in directory")
@@ -36,7 +33,6 @@ def build_mental_health_index(data_dir: str = "data/mental_health_resources") ->
             
         logger.info(f"Processing {len(documents)} documents...")
         
-        # Split into chunks
         chunks = processor.chunk_documents(documents)
         if not chunks:
             logger.error("No chunks created from documents")
@@ -44,7 +40,6 @@ def build_mental_health_index(data_dir: str = "data/mental_health_resources") ->
             
         logger.info(f"Created {len(chunks)} chunks for indexing")
         
-        # Index documents
         success = retrieval_service.index_documents(chunks)
         if success:
             logger.info("Index built successfully")
@@ -80,10 +75,6 @@ def clear_and_rebuild_index(data_dir: str = "data/mental_health_resources") -> b
         return False
 
 
-# Example usage
 if __name__ == "__main__":
-    # Normal incremental update
     build_mental_health_index()
     
-    # Or for complete rebuild:
-    # clear_and_rebuild_index()

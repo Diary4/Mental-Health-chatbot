@@ -47,19 +47,16 @@ class SafetyChecker:
             
         text_lower = text.lower()
         
-        # Layer 1: Fast pattern matching for immediate crisis
         if self._detect_crisis_patterns(text):
             return True
             
-        # Layer 2: Toxic content detection (if models loaded)
         if not self.fallback_mode:
             try:
-                # Check for toxic content
-                tox_result = self.toxicity_checker(text[:1000])[0]  # Truncate to avoid OOM
-                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.85:  # Higher threshold
+                tox_result = self.toxicity_checker(text[:1000])[0]  
+                if tox_result['label'] == 'toxic' and tox_result['score'] > 0.85:  
                     return True
                     
-                # Check for extreme negative emotions
+               
                 emotions = self.emotion_detector(text[:1000])
                 for emotion in emotions[0]:
                     if emotion['label'] in ['grief', 'despair'] and emotion['score'] > 0.9:
@@ -76,7 +73,6 @@ class SafetyChecker:
             if pattern.search(text):
                 return True
                 
-        # Additional checks for self-harm references
         self_harm_phrases = [
             "cut myself", "self harm", "bleed out",
             "hang myself", "overdose", "jump off"

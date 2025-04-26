@@ -8,7 +8,6 @@ from langchain.schema import Document
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,6 @@ class DocumentLoader:
                     try:
                         data = json.loads(line)
                         
-                        # Handle both original and improved formats
                         if "instruction" in data and "output" in data:
                             content = f"Question: {data['instruction']}\nAnswer: {data['output']}"
                             metadata = {
@@ -95,14 +93,10 @@ class DocumentLoader:
             raise
 
 
-# Example usage:
 if __name__ == "__main__":
     loader = DocumentLoader()
     
-    # Test loading
     jsonl_docs = loader.load_jsonl("data/mental_health_resources/mental_health_dataset.jsonl")
     pdf_docs = loader.load_pdf("data/mental_health_resources/sample_book.pdf")
     
-    # Test chunking
     chunked_docs = loader.chunk_documents(jsonl_docs + pdf_docs)
-    print(f"Total chunks created: {len(chunked_docs)}")

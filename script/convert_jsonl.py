@@ -13,7 +13,7 @@ def convert_jsonl(input_path, output_path):
                 "question": data["instruction"],
                 "answer": data["output"],
                 "metadata": {
-                    "topic": "self-worth",  # TODO: Auto-detect topics (see below)
+                    "topic": "self-worth",
                     "source": "original_dataset"
                 }
             }

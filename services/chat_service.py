@@ -28,19 +28,15 @@ def load_json_folder(folder_path: str) -> dict:
 
 class ChatService:
     def __init__(self):
-        # Load static responses and advice
         self.responses = load_json_folder("data/responses")
         self.advice = load_json_folder("data/advice")
 
-        # Validator to enforce safe outputs
         self.validator = MentalHealthResponseValidator()
 
-        # Retriever for domain-specific resources
         self.retriever = DocumentRetrievalService(
             "data/mental_health_resources/mental_health_dataset_improved.jsonl"
         )
 
-        # Dynamic generation model
         model_name = "microsoft/DialoGPT-small"
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(model_name)
@@ -48,18 +44,15 @@ class ChatService:
         if torch.cuda.is_available():
             self.model.to('cuda')
 
-        # Conversation history (session-level only)
         self.conversation_history = []
 
     def generate_response(self, user_input: str) -> str:
         try:
-            # 0. Clean input and record in history
             user_input_clean = user_input.strip()
             self.conversation_history.append({"role": "user", "content": user_input_clean})
 
-            # 1. Check if it's a mental health topic first
             if not is_mental_health_topic(user_input_clean):
-                # For non-mental health topics, provide a clear redirection
+               
                 redirection_response = (
                     "I'm here to support you with mental health and emotional well-being. "
                     "I don't provide general knowledge or answer non-mental health related questions. "
@@ -68,7 +61,6 @@ class ChatService:
                 self.conversation_history.append({"role": "assistant", "content": redirection_response})
                 return redirection_response
 
-            # 2. Static direct replies
             lower = user_input_clean.lower()
             for topic, replies in self.responses.items():
                 if topic in lower:
@@ -76,14 +68,12 @@ class ChatService:
                     self.conversation_history.append({"role": "assistant", "content": response})
                     return response
 
-            # 3. Static advice handling
             for topic, advice_section in self.advice.items():
                 if topic in lower:
                     response = random.choice(list(advice_section.values()))
                     self.conversation_history.append({"role": "assistant", "content": response})
                     return response
 
-            # 4. Build contextual input from last user input
             last_user_input = ""
             for item in reversed(self.conversation_history):
                 if item["role"] == "user" and item["content"] != user_input_clean:
