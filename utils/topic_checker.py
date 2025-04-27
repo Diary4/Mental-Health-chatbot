@@ -4,7 +4,7 @@ import re
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 
 MENTAL_HEALTH_KEYWORDS = [
-    # Basic emotions
+    
     "feel", "feeling", "emotion", "emotional", "mood", "sad", "happy", "angry", "fear", "scared",
     "afraid", "nervous", "anxious", "worried", "stressed", "overwhelmed", "depressed", "lonely",
     "isolated", "hopeless", "helpless", "worthless", "guilty", "ashamed", "embarrassed", "proud",
