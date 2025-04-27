@@ -52,7 +52,7 @@ class ChatService:
             user_input_clean = user_input.strip()
             self.conversation_history.append({"role": "user", "content": user_input_clean})
 
-            # Analyze conversation for learning
+            
             self.learning.analyze_conversation(self.conversation_history)
 
             if not is_mental_health_topic(user_input_clean):
@@ -87,14 +87,14 @@ class ChatService:
                     break
             combined_input = f"{last_user_input} {user_input_clean}".strip()
 
-            # Try static document retrieval
+            
             fallback = self.retriever.search(combined_input)
             if fallback:
                 self.conversation_history.append({"role": "assistant", "content": fallback})
                 self._save_conversation()
                 return fallback
 
-            # Generate dynamically using Gemini
+            
             dyn_resp = self._generate_dynamic(combined_input)
             validated = self.validator.validate_response(user_input_clean, dyn_resp)
             final = validated if validated else dyn_resp
@@ -108,7 +108,7 @@ class ChatService:
 
     def _save_conversation(self):
         """Save the current conversation for learning"""
-        if len(self.conversation_history) >= 2:  # Only save if we have at least one exchange
+        if len(self.conversation_history) >= 2: 
             self.learning.save_conversation(self.conversation_history)
 
     def get_learning_insights(self):
@@ -119,13 +119,13 @@ class ChatService:
         """Update responses for a specific topic"""
         response_file = f"data/responses/{topic}.json"
         self.learning.update_responses(response_file, new_responses)
-        # Reload responses to include new ones
+       
         self.responses = load_json_folder("data/responses")
 
     def _generate_dynamic(self, user_input: str) -> str:
         return generate_dynamic_llm(user_input)
 
     def validate_response(self, user_input: str, bot_response: str) -> str:
-        # Final pass through custom validator
+       
         result = self.validator.validate_response(user_input, bot_response)
         return result if result else bot_response

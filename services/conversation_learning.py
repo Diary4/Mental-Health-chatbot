@@ -33,16 +33,13 @@ class ConversationLearning:
         """Analyze conversation patterns and update learning"""
         for message in conversation:
             if message["role"] == "user":
-                # Extract potential topics
                 text = message["content"].lower()
                 words = re.findall(r'\w+', text)
                 
-                # Update topic frequency
                 for word in words:
-                    if len(word) > 3:  # Avoid very short words
+                    if len(word) > 3: 
                         self.topics[word] += 1
                         
-                # Update patterns
                 for i in range(len(words) - 1):
                     pattern = f"{words[i]} {words[i+1]}"
                     self.patterns[pattern] += 1
@@ -53,7 +50,7 @@ class ConversationLearning:
             with open(response_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 
-            # Add new responses if they don't already exist
+           
             existing_responses = set(data.get("responses", []))
             for response in new_responses:
                 if response not in existing_responses:
