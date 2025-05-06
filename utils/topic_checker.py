@@ -4,7 +4,6 @@ import re
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
 
 MENTAL_HEALTH_KEYWORDS = [
-    # Original keywords (keep all existing ones)
     "feel", "feeling", "emotion", "emotional", "mood", "sad", "happy", "angry", "fear", "scared",
     "afraid", "nervous", "anxious", "worried", "stressed", "overwhelmed", "depressed", "lonely",
     "isolated", "hopeless", "helpless", "worthless", "guilty", "ashamed", "embarrassed", "proud",
@@ -23,8 +22,6 @@ MENTAL_HEALTH_KEYWORDS = [
     "broken", "heart", "heartbroken", "rejection", "rejected", "abandon", "abandoned", "alone",
     "lonely", "isolation", "isolated", "connection", "connect", "connected", "belong", "belonging",
     "accept", "accepted", "reject", "rejected", "understand", "understood", "listen", "heard",
-
-    # NEWLY ADDED KEYWORDS (100+ more)
     "hate", "hated", "hating", "dislike", "unwanted", "unloved", "useless", "failure", "loser",
     "ugly", "stupid", "dumb", "hopeless", "helpless", "pathetic", "worthless", "inadequate",
     "insecure", "self-doubt", "self-loathing", "self-harm", "cutting", "suicidal", "suicide",
