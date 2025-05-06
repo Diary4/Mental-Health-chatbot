@@ -1,0 +1,22 @@
+{
+  "timestamp": "20250506_195221",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "What can I ask you?"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to support you with mental health and emotional well-being. I don't provide general knowledge or answer non-mental health related questions. Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+    },
+    {
+      "role": "user",
+      "content": "I want to talk about emotional things"
+    },
+    {
+      "role": "assistant",
+      "content": "I specialize in mental health topics. Could you tell me more about what's on your mind?"
+    }
+  ]
+}
