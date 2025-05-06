@@ -1,0 +1,22 @@
+{
+  "timestamp": "20250504_135741",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "What is depression"
+    },
+    {
+      "role": "assistant",
+      "content": "Depression can make even small tasks feel overwhelming. What's one tiny step that might feel manageable?"
+    },
+    {
+      "role": "user",
+      "content": "what is the capital of france"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to support you with mental health and emotional well-being. I don't provide general knowledge or answer non-mental health related questions. Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+    }
+  ]
+}

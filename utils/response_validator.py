@@ -16,15 +16,13 @@ class MentalHealthResponseValidator:
 
     def validate_response(self, user_input: str, bot_response: str) -> Optional[str]:
         """Validate and potentially modify the bot response"""
-        # Check for inappropriate phrases
         if any(phrase.lower() in bot_response.lower() for phrase in self.inappropriate_phrases):
             return "I'm sorry, I don't have an appropriate response for that. Could we focus on mental health topics?"
         
-        # Check if response is relevant to mental health
         if not self._is_mental_health_related(user_input, bot_response):
             return self._get_redirect_response(user_input)
         
-        return None  # Response is valid
+        return None 
 
     def _is_mental_health_related(self, user_input: str, response: str) -> bool:
         """Check if the conversation is about mental health"""

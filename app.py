@@ -57,30 +57,6 @@ def chat():
             'error': str(e)
         }), 500
 
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    """Health check endpoint for the API"""
-    return jsonify({
-        'success': True,
-        'status': 'healthy',
-        'message': 'API is running'
-    })
-
-@app.route('/api/insights', methods=['GET'])
-def get_insights():
-    """Get insights from conversation analysis"""
-    try:
-        insights = chat_service.get_learning_insights()
-        return jsonify({
-            'success': True,
-            'data': insights
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
 @app.route('/api/update_responses', methods=['POST'])
 def update_responses():
     """Update responses for a specific topic"""

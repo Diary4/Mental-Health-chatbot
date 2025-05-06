@@ -1,0 +1,14 @@
+{
+  "timestamp": "20250504_135722",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "What is depression"
+    },
+    {
+      "role": "assistant",
+      "content": "Depression can make even small tasks feel overwhelming. What's one tiny step that might feel manageable?"
+    }
+  ]
+}
