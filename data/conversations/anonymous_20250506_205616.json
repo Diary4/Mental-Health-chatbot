@@ -1,0 +1,14 @@
+{
+  "timestamp": "20250506_205616",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "Whats is self esteem"
+    },
+    {
+      "role": "assistant",
+      "content": "That's an interesting question. In mental health contexts, we often find that..."
+    }
+  ]
+}

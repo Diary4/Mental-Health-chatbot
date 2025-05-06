@@ -1,0 +1,30 @@
+{
+  "timestamp": "20250506_200715",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "Wha can we do"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to support you with mental health and emotional well-being. I don't provide general knowledge or answer non-mental health related questions. Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+    },
+    {
+      "role": "user",
+      "content": "Why every one hates me"
+    },
+    {
+      "role": "assistant",
+      "content": "That's an interesting question. In mental health contexts, we often find that..."
+    },
+    {
+      "role": "user",
+      "content": "What"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to support you with mental health and emotional well-being. I don't provide general knowledge or answer non-mental health related questions. Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+    }
+  ]
+}

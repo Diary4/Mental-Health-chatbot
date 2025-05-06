@@ -1,0 +1,14 @@
+{
+  "timestamp": "20250506_200634",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "Wha can we do"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here to support you with mental health and emotional well-being. I don't provide general knowledge or answer non-mental health related questions. Would you like to talk about how you're feeling or any emotional challenges you're facing?"
+    }
+  ]
+}
