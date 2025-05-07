@@ -1,0 +1,22 @@
+{
+  "timestamp": "20250506_211319",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "I shake and have panic attacks."
+    },
+    {
+      "role": "assistant",
+      "content": "One way to understand panic attacks is as a sign of feeling insecure or lacking confidence in a certain area or characteristic of yourself.The insecurity can sometimes feel overwhelming and this starts the sense of panic.\u00a0One way to build your sense of security within yourself is to have a simple life and a slow paced life. \u00a0\u00a0When there are many activities or involvements to pay attention, then it is easy to not give full attention to all of them. \u00a0This may trigger a sense of insecurity since in fact you may not have had sufficient time to study and know your own opinion about all of what your life is immersed in.A simpler life of fewer activities allows more time to know and understand your own inner feelings and reactions.To know more about yourself may help build your confidence and security in your ability to know and live what goes on in your life!"
+    },
+    {
+      "role": "user",
+      "content": "How do I decide if I should end my relationship with my boyfriend?"
+    },
+    {
+      "role": "assistant",
+      "content": "Hi!I\u2019m sorry you\u2019re having this dilemma.\u00a0I wish I knew a little more about the situation to give a better answer. Have you discussed what is causing you to consider breaking up with your partner? Based on the information given,\u00a0I suggest starting off making a pros and cons list. Pros for staying in the relationship and cons for staying. See which side has more. Follow your gut. Hope this helps as a start."
+    }
+  ]
+}

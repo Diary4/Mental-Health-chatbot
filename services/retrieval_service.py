@@ -6,7 +6,7 @@ from datasets import load_dataset
 from langchain_core.documents import Document
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from typing import List, Optional
+from typing import List
 
 class MentalHealthRetrievalService:
     def __init__(self, vector_store_path: str = "vector_store"):
