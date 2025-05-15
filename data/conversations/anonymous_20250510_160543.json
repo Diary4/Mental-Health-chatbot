@@ -1,0 +1,22 @@
+{
+  "timestamp": "20250510_160543",
+  "user_id": "anonymous",
+  "conversation": [
+    {
+      "role": "user",
+      "content": "Is walking good for reducing stress ?"
+    },
+    {
+      "role": "assistant",
+      "content": "Dealing with stress can be overwhelming. Let's break this down into smaller, manageable parts."
+    },
+    {
+      "role": "user",
+      "content": "Tomorrow i have an exam and i am stressed out"
+    },
+    {
+      "role": "assistant",
+      "content": "When we're stressed, our thinking can become clouded. What's one small step you could take right now?"
+    }
+  ]
+}
